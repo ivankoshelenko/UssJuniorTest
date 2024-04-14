@@ -4,6 +4,7 @@ using System.Net;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Unicode;
+using UssJuniorTest.Core;
 using UssJuniorTest.Core.Models;
 using UssJuniorTest.Infrastructure.Repositories;
 using UssJuniorTest.Infrastructure.Store;
@@ -21,52 +22,56 @@ public class DriveLogController : Controller
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<PresentationLog>))]
     public ActionResult<ArrayList> GetDriveLogsAggregation()
      {
-        InMemoryStore _store = new InMemoryStore();
-        CarRepository carRep = new CarRepository(_store);
-        DriveLogRepository logRep = new DriveLogRepository(_store);
-        PersonRepository personRep = new PersonRepository(_store);
-
-        List<DriveLog> logs = logRep.GetAll().ToList();
-        ArrayList presLog = new ArrayList();
-        foreach (DriveLog log in logs)
-        {      
-            PresentationLog presentationLog = new PresentationLog();
-            presentationLog.Id = log.Id;
-            presentationLog.Car = carRep.Get(log.CarId);
-            presentationLog.Person = personRep.Get(log.PersonId);
-            presentationLog.StartDateTime = log.StartDateTime;
-            presentationLog.EndDateTime = log.EndDateTime;
-            presLog.Add(presentationLog);
-        }
-        return (presLog);
+        return FormResponse.FormLogResponse();
     }
 
     [HttpGet("{start_time}/{end_time}")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<PresentationLog>))]
     public JsonResult GetDriveLogsByTime(DateTime start_time, DateTime end_time)
     {
-        InMemoryStore _store = new InMemoryStore();
-        CarRepository carRep = new CarRepository(_store);
-        DriveLogRepository logRep = new DriveLogRepository(_store);
-        PersonRepository personRep = new PersonRepository(_store);
-        Console.WriteLine(start_time);
-        List<DriveLog> logs = logRep.GetAll().ToList();
-        ArrayList presLog = new ArrayList();
-        foreach (DriveLog log in logs)
+        return Json(FormResponse.DateResponse(start_time, end_time));   
+    }
+
+    [HttpGet("car_filter/{car_Id}")]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<PresentationLog>))]
+    public JsonResult GetDriveLogsByCars(long car_Id)
+    {
+        ArrayList presLog = FormResponse.FormLogResponse();
+        foreach (PresentationLog log in presLog.ToArray())
         {
-            if (log.StartDateTime <= end_time && log.EndDateTime > start_time)
+            if (log.Car.Id != car_Id)
             {
-                PresentationLog presentationLog = new PresentationLog();
-                presentationLog.Car = carRep.Get(log.CarId);
-                presentationLog.Person = personRep.Get(log.PersonId);
-                presentationLog.StartDateTime = log.StartDateTime;
-                presentationLog.EndDateTime = log.EndDateTime;
-                presentationLog.Id = log.Id;
-                presLog.Add(presentationLog);
-            } 
+                presLog.Remove(log);
+            }
         }
-        if (presLog.Count == 0)
-            return Json("No drive Logs");
+        return Json(presLog);
+    }
+    [HttpGet("person_filter/{person_Id}")]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<PresentationLog>))]
+    public JsonResult GetDriveLogsByPerson(long person_Id)
+    {
+        ArrayList presLog = FormResponse.FormLogResponse();
+        foreach (PresentationLog log in presLog.ToArray())
+        {
+            if (log.Person.Id != person_Id)
+            {
+                presLog.Remove(log);
+            }
+        }
+        return Json(presLog);
+    }
+    [HttpGet("pagination/{start}/{end}")]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<PresentationLog>))]
+    public JsonResult GetDriveLogsPaginated(int start, int end)
+    {
+        ArrayList presLog = FormResponse.FormLogResponse();
+        foreach (PresentationLog log in presLog.ToArray())
+        {
+            if (log.Id < start || log.Id > end)
+            {
+                presLog.Remove(log);
+            }
+        }
         return Json(presLog);
     }
 }

@@ -1,18 +1,18 @@
 ﻿namespace UssJuniorTest.Core.Models;
 
 /// <summary>
-/// Запись о вождении.
+/// Представление записи о вождении.
 /// </summary>
-/// <remarks>Содержит информацию о временных промежутках вождения конкретного человека конкретным авто.</remarks>
+/// <remarks>Содержит информацию о временных промежутках вождения конкретного человека конкретным авто с информацией о нем и машине.</remarks>
 public class PresentationLog : Model
 {
     /// <summary>
-    /// Идентификатор автомобиля.
+    /// Объект автомобиля.
     /// </summary>
     public Car Car { get; set; }
 
     /// <summary>
-    /// Идентификатор человека.
+    /// Объект человека.
     /// </summary>
     public Person Person { get; set; }
 
@@ -25,4 +25,9 @@ public class PresentationLog : Model
     /// Конец вождения.
     /// </summary>
     public DateTime EndDateTime { get; set; }
+
+    /// <summary>
+    /// Продолжительность использования автомобиля.
+    /// </summary>
+    public string UsageTime { get; set; }
 }

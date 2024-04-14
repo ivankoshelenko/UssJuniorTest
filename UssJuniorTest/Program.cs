@@ -28,11 +28,6 @@ app.UseSwaggerUI(options =>
     options.RoutePrefix = string.Empty; // Set the Swagger UI at the root URL
 });
 
-app.UseEndpoints(endpoints =>
-{
-    endpoints.MapControllerRoute(
-           name: "default",
-           pattern: "{controller=Home}/{action=Index}/{id?}");
-});
+app.MapControllers();
 
 app.Run();
