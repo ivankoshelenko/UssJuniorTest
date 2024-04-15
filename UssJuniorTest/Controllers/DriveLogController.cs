@@ -32,7 +32,7 @@ public class DriveLogController : Controller
         return Json(FormResponse.DateResponse(start_time, end_time));   
     }
 
-    [HttpGet("car_filter/{car_Id}")]
+    [HttpGet("car-filter/{car_Id}")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<PresentationLog>))]
     public JsonResult GetDriveLogsByCars(long car_Id)
     {
@@ -46,7 +46,7 @@ public class DriveLogController : Controller
         }
         return Json(presLog);
     }
-    [HttpGet("person_filter/{person_Id}")]
+    [HttpGet("person-filter/{person_Id}")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<PresentationLog>))]
     public JsonResult GetDriveLogsByPerson(long person_Id)
     {
@@ -72,6 +72,35 @@ public class DriveLogController : Controller
                 presLog.Remove(log);
             }
         }
+        return Json(presLog);
+    }
+
+    [HttpGet("sort-by-car")]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<PresentationLog>))]
+    public JsonResult GetDriveLogsSortedByCar(bool descending)
+    {
+        ArrayList presLog = FormResponse.FormLogResponse();
+        //Console.WriteLine(presLog.Cast<PresentationLog>());
+        
+        if (!descending)
+            presLog = new ArrayList(presLog.Cast<PresentationLog>().OrderBy(log => log.Car.Id).ToList());
+        //presLog.Sort(new CarComparer());
+        else
+            presLog = new ArrayList(presLog.Cast<PresentationLog>().OrderByDescending(log => log.Car.Id).ToList());
+        //presLog.Sort(new ReverseCarComparer());
+        return Json(presLog);
+    }
+    [HttpGet("sort-by-person")]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<PresentationLog>))]
+    public JsonResult GetDriveLogsSortedByPerson(bool descending)
+    {
+        ArrayList presLog = FormResponse.FormLogResponse();
+        //Console.WriteLine(presLog.Cast<PresentationLog>());
+        //presLog = new ArrayList(presLog.Cast<PresentationLog>().OrderBy(log => log.Car.Id).ToList());
+        if (!descending)
+            presLog.Sort(new PersonComparer());
+        else
+            presLog.Sort(new ReversePersonComparer());
         return Json(presLog);
     }
 }
