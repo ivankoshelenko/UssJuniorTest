@@ -80,14 +80,10 @@ public class DriveLogController : Controller
     public JsonResult GetDriveLogsSortedByCar(bool descending)
     {
         ArrayList presLog = FormResponse.FormLogResponse();
-        //Console.WriteLine(presLog.Cast<PresentationLog>());
-        
         if (!descending)
             presLog = new ArrayList(presLog.Cast<PresentationLog>().OrderBy(log => log.Car.Id).ToList());
-        //presLog.Sort(new CarComparer());
         else
             presLog = new ArrayList(presLog.Cast<PresentationLog>().OrderByDescending(log => log.Car.Id).ToList());
-        //presLog.Sort(new ReverseCarComparer());
         return Json(presLog);
     }
     [HttpGet("sort-by-person")]
@@ -95,8 +91,6 @@ public class DriveLogController : Controller
     public JsonResult GetDriveLogsSortedByPerson(bool descending)
     {
         ArrayList presLog = FormResponse.FormLogResponse();
-        //Console.WriteLine(presLog.Cast<PresentationLog>());
-        //presLog = new ArrayList(presLog.Cast<PresentationLog>().OrderBy(log => log.Car.Id).ToList());
         if (!descending)
             presLog.Sort(new PersonComparer());
         else
