@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Collections;
 using System.Net;
+using System.Net.Mail;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Unicode;
@@ -18,6 +19,7 @@ public class DriveLogController : Controller
     {
 
     }
+
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<PresentationLog>))]
     public ActionResult<ArrayList> GetDriveLogsAggregation()
@@ -34,7 +36,7 @@ public class DriveLogController : Controller
 
     [HttpGet("car-filter/{car_Id}")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<PresentationLog>))]
-    public JsonResult GetDriveLogsByCars(long car_Id)
+    public ActionResult GetDriveLogsByCars(long car_Id)
     {
         ArrayList presLog = FormResponse.FormLogResponse();
         foreach (PresentationLog log in presLog.ToArray())
@@ -44,11 +46,14 @@ public class DriveLogController : Controller
                 presLog.Remove(log);
             }
         }
+        if (presLog.Count == 0)
+            return NotFound();
         return Json(presLog);
     }
+
     [HttpGet("person-filter/{person_Id}")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<PresentationLog>))]
-    public JsonResult GetDriveLogsByPerson(long person_Id)
+    public ActionResult GetDriveLogsByPerson(long person_Id)
     {
         ArrayList presLog = FormResponse.FormLogResponse();
         foreach (PresentationLog log in presLog.ToArray())
@@ -58,20 +63,25 @@ public class DriveLogController : Controller
                 presLog.Remove(log);
             }
         }
+        if (presLog.Count == 0)
+            return NotFound();
         return Json(presLog);
     }
+
     [HttpGet("pagination/{start}/{end}")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<PresentationLog>))]
-    public JsonResult GetDriveLogsPaginated(int start, int end)
+    public ActionResult GetDriveLogsPaginated(int start, int end)
     {
         ArrayList presLog = FormResponse.FormLogResponse();
         foreach (PresentationLog log in presLog.ToArray())
         {
-            if (log.Id < start || log.Id > end)
+            if (log.Id < start || (log.Id > end && end != -1) || (log.Id > start && start == end))
             {
                 presLog.Remove(log);
             }
         }
+        if (presLog.Count == 0)
+            return NotFound();
         return Json(presLog);
     }
 
@@ -86,6 +96,7 @@ public class DriveLogController : Controller
             presLog = new ArrayList(presLog.Cast<PresentationLog>().OrderByDescending(log => log.Car.Id).ToList());
         return Json(presLog);
     }
+
     [HttpGet("sort-by-person")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<PresentationLog>))]
     public JsonResult GetDriveLogsSortedByPerson(bool descending)
